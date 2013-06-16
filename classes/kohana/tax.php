@@ -10,6 +10,11 @@ defined('SYSPATH') or die('No direct script access.');
  */
 class Kohana_Tax {
 
+    /**
+     * Default tax group to be used.
+     * 
+     * @var string 
+     */
     public static $default = NULL;
 
     public static function factory($group = NULL) {
@@ -23,16 +28,20 @@ class Kohana_Tax {
 
     private $group;
 
+    protected function __construct($group) {
+        $this->group = $group;
+    }
+
     /**
      * Applies configured taxes on an amount.
      * 
-     * @param number $amount
-     * @return number
+     * @param real $amount
+     * @return real
      */
     public function tax($amount) {
 
-        $initial_amount = $amount;
-
+        $initial_amount = $amount;        
+        
         foreach (Kohana::$config->load("tax.$this->group") as $tax) {
 
             $amount_to_be_taxed = Arr::get($tax, 'cumulative', FALSE) ? $amount : $initial_amount;
@@ -47,9 +56,10 @@ class Kohana_Tax {
     }
 
     /**
+     * Calculate the amount of tax applied on a price.
      * 
-     * @param number $amount
-     * @return number
+     * @param real $amount
+     * @return real
      */
     public function tax_diff($amount) {
         return static::tax($amount) - $amount;

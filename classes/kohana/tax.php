@@ -33,38 +33,44 @@ class Kohana_Tax {
     }
 
     /**
-     * Applies configured taxes on an amount.
+     * Calcuate taxes on a specified amount.
      * 
-     * @param real $amount
+     * @param real $sub_total
      * @return real
      */
-    public function tax($amount) {
+    public function calculate($sub_total) {
 
-        $initial_amount = $amount;        
-        
+        $taxes = 0.0;
+
         foreach (Kohana::$config->load("tax.$this->group") as $tax) {
-
-            $amount_to_be_taxed = Arr::get($tax, 'cumulative', FALSE) ? $amount : $initial_amount;
-
-            $relative_amount = $amount_to_be_taxed * (Arr::get($tax, 'percent', 0) / 100); // Relative tax
-            $absolute_amount = Arr::get($tax, 'amount', 0); // Absolute tax
-
-            $amount += $relative_amount + $absolute_amount;
+            $amount = Arr::get($tax, 'cumulative', FALSE) ? $sub_total + $taxes : $sub_total;
+            $taxes += $amount * (Arr::get($tax, 'percent', 0) / 100) + Arr::get($tax, 'amount', 0);
         }
 
-        return $amount;
+        return $taxes;
     }
 
     /**
-     * Calculate the amount of tax applied on a price.
+     * Calcuate reverse taxes on a specified amount.
      * 
-     * @param real $amount
+     * Tax are linear, therefore we have
+     * 
+     * f(t) = at + b
+     * 
+     * b = f(0)
+     * a = (f(k) - b) / k
+     * 
+     * Given those parameters, we can reverse the tax calculation.
+     * 
+     * @param real $total
      * @return real
      */
-    public function tax_diff($amount) {
-        return static::tax($amount) - $amount;
+    public function reverse($total) {
+
+        $b = $this->calculate(0);
+        $a = ($this->calculate(100) - $b) / 100;
+
+        return ($total - $b) / ($a + 1);
     }
 
 }
-
-?>

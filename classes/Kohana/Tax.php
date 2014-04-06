@@ -30,7 +30,19 @@ class Kohana_Tax {
 
     protected function __construct($group) {
 
+        if ($group === NULL) {
+
+            throw new Kohana_Exception('You must set Tax::$default value in your bootstrap file.');
+        }
+
         $this->config = Kohana::$config->load("tax.$group");
+
+        if ($this->config === NULL) {
+
+            throw new Kohana_Exception('Tax group :group is not defined in the configuration.', array(
+        ':group' => $group
+            ));
+        }
     }
 
     /**
@@ -84,7 +96,7 @@ class Kohana_Tax {
      */
     public function calculate($subtotal) {
 
-        return $subtotal + $this->diff($subtotal); 
+        return $subtotal + $this->diff($subtotal);
     }
 
 }

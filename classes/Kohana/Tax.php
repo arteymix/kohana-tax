@@ -3,10 +3,12 @@
 defined('SYSPATH') or die('No direct script access.');
 
 /**
- * 
- * @package Tax
- * @author Hète.ca Team
+ * Tax amounts with a tax configuration.
+ *
+ * @package   Tax
+ * @author    Hète.ca Team
  * @copyright (c) 2013, Hète.ca Inc.
+ * @license   BSD 3 clauses
  */
 class Kohana_Tax {
 
@@ -26,24 +28,25 @@ class Kohana_Tax {
         return new Tax($group);
     }
 
-    private $group;
-
     protected function __construct($group) {
-        $this->group = $group;
+
+        $this->config = Kohana::$config->load("tax.$group");
     }
 
     /**
      * Calcuate taxes on a specified amount.
      * 
-     * @param real $sub_total
+     * @param  real $subtotal
      * @return real
      */
-    public function calculate($sub_total) {
+    public function diff($subtotal) {
 
         $taxes = 0.0;
 
-        foreach (Kohana::$config->load("tax.$this->group") as $tax) {
-            $amount = Arr::get($tax, 'cumulative', FALSE) ? $sub_total + $taxes : $sub_total;
+        foreach ($this->config as $tax) {
+
+            $amount = Arr::get($tax, 'cumulative', FALSE) ? $subtotal + $taxes : $subtotal;
+
             $taxes += $amount * (Arr::get($tax, 'percent', 0) / 100) + Arr::get($tax, 'amount', 0);
         }
 
@@ -62,15 +65,26 @@ class Kohana_Tax {
      * 
      * Given those parameters, we can reverse the tax calculation.
      * 
-     * @param real $total
-     * @return real
+     * @param  real $total
+     * @return real the sub total that generates $total once taxed.
      */
     public function reverse($total) {
 
-        $b = $this->calculate(0);
-        $a = ($this->calculate(100) - $b) / 100;
+        $b = $this->diff(0);
+        $a = ($this->diff(100) - $b) / 100;
 
         return ($total - $b) / ($a + 1);
+    }
+
+    /**
+     * Calculate the amount of taxes applied on a sub total.
+
+     * @param  real $subtotal a sub total.
+     * @return real the amount of taxes appliable on $subtotal.
+     */
+    public function calculate($subtotal) {
+
+        return $subtotal + $this->diff($subtotal); 
     }
 
 }

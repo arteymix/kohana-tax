@@ -10,6 +10,9 @@ defined('SYSPATH') or die('No direct script access.');
  * @license BSD 3 clauses
  */
 return array(
+    /**
+     * Sample tax.
+     */
     'sample' => array(
         // order is important for cumulative taxes
         'a' => array(
@@ -22,6 +25,9 @@ return array(
         )
     ),
     'ca' => array(
+        /**
+         * Quebec applies TVQ over TPS
+         */
         'qc' => array(
             'tps' => array(
                 'cumulative' => FALSE,
@@ -33,4 +39,13 @@ return array(
             )
         )
     ),
+    /**
+     * TVA from France.
+     */
+    'fr' => array(
+        'tva' => array(
+            'cumulative' => FALSE,
+            'percent' => 20
+        )
+    )
 );

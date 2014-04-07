@@ -22,6 +22,7 @@ class Kohana_Tax {
     public static function factory($group = NULL) {
 
         if ($group === NULL) {
+
             $group = Tax::$default;
         }
 
@@ -51,18 +52,21 @@ class Kohana_Tax {
      * @param  real $subtotal
      * @return real
      */
-    public function diff($subtotal) {
+    public function calculate($subtotal) {
 
-        $taxes = 0.0;
+        $total = $subtotal;
 
         foreach ($this->config as $tax) {
 
-            $amount = Arr::get($tax, 'cumulative', FALSE) ? $subtotal + $taxes : $subtotal;
+            $taxable = Arr::get($tax, 'cumulative', FALSE) ? $total : $subtotal;
 
-            $taxes += $amount * (Arr::get($tax, 'percent', 0) / 100) + Arr::get($tax, 'amount', 0);
+            $percent = Arr::get($tax, 'percent', 0);
+            $amount = Arr::get($tax, 'amount', 0);
+
+            $total = $total + ($taxable * ($percent / 100.0)) + $amount;
         }
 
-        return $taxes;
+        return $total;
     }
 
     /**
@@ -94,9 +98,9 @@ class Kohana_Tax {
      * @param  real $subtotal a sub total.
      * @return real the amount of taxes appliable on $subtotal.
      */
-    public function calculate($subtotal) {
+    public function diff($subtotal) {
 
-        return $subtotal + $this->diff($subtotal);
+        return $this->calculate($subtotal) - $subtotal;
     }
 
 }

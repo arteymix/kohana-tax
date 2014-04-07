@@ -36,4 +36,9 @@ class TaxTest extends Unittest_TestCase {
 
         $this->assertEquals($total - $subtotal, Tax::factory('sample')->diff($subtotal));
     }    
+
+    public function test_fr() {
+        
+        $this->assertEquals(24.0,Tax::factory('fr')->calculate(20.0));
+    }
 }

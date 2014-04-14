@@ -1,5 +1,6 @@
 {
-    "name": "kohana/tax",
+    "name": "hete/tax",
+    "type": "kohana-module",
     "description": "Tax-handling module for the Kohana framework",
     "homepage": "http://github.com/Hete/kohana-tax",
     "license": "BSD-3-Clause",
